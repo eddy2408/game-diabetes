@@ -59,7 +59,7 @@ if(top>560){item.remove();clearInterval(fall);}
 function endGame(){
 clearInterval(spawnInterval);clearInterval(timerInterval);gameRunning=false;
 let msg=score>=50?'Tahniah! Anda membuat pilihan makanan yang baik untuk mengawal gula darah.' : 'Cuba kurangkan makanan tinggi gula dan pilih lebih banyak buah, sayur dan protein sihat.';
-alert('Masa Tamat! Skor: '+score+'\n\+msg);
+alert('Masa Tamat! Skor:'+score+'\n\+msg);
 }
 document.addEventListener('keydown',e=>{
 if(e.key==='ArrowLeft') playerX=Math.max(0,playerX-20);
