@@ -3,72 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Diabetes: Tangkap Makanan Sihat</title>
+<title>Tangkap Makanan Sihat</title>
+
 <style>
-body{font-family:Arial,sans-serif;background:#e8f5e9;text-align:center;margin:0;padding:20px}
-#gameArea{position:relative;width:100%;max-width:500px;height:600px;margin:auto;background:#fff;border:3px solid #4caf50;overflow:hidden}
-#player{position:absolute;bottom:10px;left:220px;font-size:48px}
-.falling{position:absolute;font-size:36px}
-#info{font-size:20px;font-weight:bold;margin:10px}
-button{padding:10px 20px;font-size:18px;margin-top:10px}
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background:#e8f5e9;
+    margin:0;
+    padding:20px;
+}
+
+h1{
+    color:#2e7d32;
+}
+
+#game{
+    width:500px;
+    height:600px;
+    margin:auto;
+    border:3px solid #2e7d32;
+    background:white;
+    position:relative;
+    overflow:hidden;
+}
+
+#player{
+    position:absolute;
+    bottom:10px;
+    left:220px;
+    font-size:50px;
+}
+
+.item{
+    position:absolute;
+    font-size:35px;
+}
+
+#score{
+    font-size:24px;
+    font-weight:bold;
+    margin:15px;
+}
 </style>
 </head>
+
 <body>
+
 <h1>🩺 Tangkap Makanan Sihat</h1>
-<p>Tangkap makanan sihat dan elakkan makanan tinggi gula!</p>
-<div id="info">Skor: <span id="score">0</span> | Masa: <span id="time">60</span>s</div>
-<div id="gameArea"><div id="player">🧑</div></div>
-<button onclick="startGame()">Mula Game</button>
+
+<div id="score">
+Skor: <span id="markah">0</span>
+</div>
+
+<div id="game">
+    <div id="player">🧑</div>
+</div>
+
 <script>
-const healthy=['🍎','🥦','🐟','🥣'];
-const unhealthy=['🍩','🎂','🍬','🥤'];
-let score=0,timeLeft=60,gameRunning=false,spawnInterval,timerInterval;
-const gameArea=document.getElementById('gameArea');
-const player=document.getElementById('player');
-let playerX=220;
-function startGame(){
-if(gameRunning) return;
-gameRunning=true;score=0;timeLeft=60;
-document.getElementById('score').textContent=score;
-document.getElementById('time').textContent=timeLeft;
-spawnInterval=setInterval(createItem,800);
-timerInterval=setInterval(()=>{timeLeft--;document.getElementById('time').textContent=timeLeft;if(timeLeft<=0)endGame();},1000);
-}
-function createItem(){
-const item=document.createElement('div');
-item.className='falling';
-const good=Math.random()>0.5;
-item.textContent=good?healthy[Math.floor(Math.random()*healthy.length)]:unhealthy[Math.floor(Math.random()*unhealthy.length)];
-item.dataset.good=good;
-item.style.left=Math.random()*450+'px';
-item.style.top='0px';
-gameArea.appendChild(item);
-let fall=setInterval(()=>{
-let top=parseInt(item.style.top);
-item.style.top=(top+5)+'px';
-const itemRect=item.getBoundingClientRect();
-const playerRect=player.getBoundingClientRect();
-if(!(itemRect.right<playerRect.left||itemRect.left>playerRect.right||itemRect.bottom<playerRect.top||itemRect.top>playerRect.bottom)){
-score += item.dataset.good==='true'?10:-10;
-document.getElementById('score').textContent=score;
-item.remove();clearInterval(fall);
-}
-if(top>560){item.remove();clearInterval(fall);} 
-},30);
-}
-function endGame(){
-clearInterval(spawnInterval);clearInterval(timerInterval);gameRunning=false;
-let msg=score>=50?'Tahniah! Anda membuat pilihan makanan yang baik untuk mengawal gula darah.' : 'Cuba kurangkan makanan tinggi gula dan pilih lebih banyak buah, sayur dan protein sihat.';
-alert('Masa Tamat! Skor:'+score+'\n\+msg);
-}
-document.addEventListener('keydown',e=>{
-if(e.key==='ArrowLeft') playerX=Math.max(0,playerX-20);
-if(e.key==='ArrowRight') playerX=Math.min(450,playerX+20);
-player.style.left=playerX+'px';
+
+const game = document.getElementById("game");
+const player = document.getElementById("player");
+const markahText = document.getElementById("markah");
+
+let score = 0;
+let playerX = 220;
+
+const sihat = ["🍎","🥦","🐟","🥗"];
+const tidakSihat = ["🍩","🍬","🥤","🎂"];
+
+document.addEventListener("keydown", function(e){
+
+    if(e.key==="ArrowLeft"){
+        playerX -= 25;
+    }
+
+    if(e.key==="ArrowRight"){
+        playerX += 25;
+    }
+
+    if(playerX < 0) playerX = 0;
+    if(playerX > 450) playerX = 450;
+
+    player.style.left = playerX + "px";
 });
-let startX=0;
-player.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;});
-document.addEventListener('touchmove',e=>{let moveX=e.touches[0].clientX-startX;playerX=Math.max(0,Math.min(450,playerX+moveX*0.1));player.style.left=playerX+'px';startX=e.touches[0].clientX;});
+
+function ciptaMakanan(){
+
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const baik = Math.random() > 0.5;
+
+    if(baik){
+        item.innerHTML = sihat[Math.floor(Math.random()*sihat.length)];
+    }else{
+        item.innerHTML = tidakSihat[Math.floor(Math.random()*tidakSihat.length)];
+    }
+
+    item.dataset.baik = baik;
+
+    let x = Math.random()*450;
+    let y = 0;
+
+    item.style.left = x + "px";
+    item.style.top = y + "px";
+
+    game.appendChild(item);
+
+    const jatuh = setInterval(function(){
+
+        y += 5;
+        item.style.top = y + "px";
+
+        const itemRect = item.getBoundingClientRect();
+        const playerRect = player.getBoundingClientRect();
+
+        if(
+            itemRect.left < playerRect.right &&
+            itemRect.right > playerRect.left &&
+            itemRect.top < playerRect.bottom &&
+            itemRect.bottom > playerRect.top
+        ){
+
+            if(item.dataset.baik === "true"){
+                score += 10;
+            }else{
+                score -= 10;
+            }
+
+            markahText.textContent = score;
+
+            clearInterval(jatuh);
+            item.remove();
+        }
+
+        if(y > 580){
+            clearInterval(jatuh);
+            item.remove();
+        }
+
+    },30);
+}
+
+setInterval(ciptaMakanan,1000);
+
 </script>
+
 </body>
 </html>
